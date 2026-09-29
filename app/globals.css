@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 15, 38, 29;
+  --background-start-rgb: 251, 251, 250;
+  --background-end-rgb: 245, 245, 240;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background-color: #fafaf7;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom ticket styling */
+.ticket-edge {
+  position: relative;
+  background: radial-gradient(circle at 0% 50%, transparent 12px, #0e261d 13px),
+              radial-gradient(circle at 100% 50%, transparent 12px, #0e261d 13px);
+}
+
+.ticket-dashed-line {
+  background-image: linear-gradient(to bottom, #2d594a 50%, rgba(255, 255, 255, 0) 0%);
+  background-position: right;
+  background-size: 1px 10px;
+  background-repeat: repeat-y;
+}
+
+/* Glassmorphism helpers */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 232, 228, 0.8);
+}
+
+/* Animations */
+@keyframes pulseSlow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.animate-pulse-slow {
+  animation: pulseSlow 3s infinite ease-in-out;
+}

@@ -1,0 +1,220 @@
+=== PAGE 1 ===
+ 
+CAPSTONE PROJECT 
+Railway Management System 
+Real-Life Example: Indian Railways Passenger Reservation 
+1. Introduction 
+Railway transportation handles a large amount of information related to trains, passengers, stations, 
+reservations, seats and payments. Managing this information manually can lead to duplication, errors 
+and difficulty in retrieving records. 
+A Railway Management System is a database-based system that manages passenger reservations 
+and railway-related information efficiently. 
+For this capstone, we consider a real-life scenario similar to an online Indian railway passenger 
+reservation system. A passenger searches for a train, selects a journey, reserves a seat and makes a 
+payment. The system stores all these details in related database tables. 
+2. Real-Life Scenario 
+Consider a passenger named Rahul Sharma who wants to travel from Delhi to Mumbai. 
+ Passenger → Searches for Train → Selects Train → Makes Reservation → Seat is Assigned → 
+Makes Payment → Reservation Confirmed 
+3. Problem Statement 
+The system should maintain information about passengers, trains, stations, reservations and 
+payments. 
+ Store passenger information. 
+ Store train information. 
+ Store station information. 
+ Register passenger reservations. 
+ Assign seats to passengers. 
+ Record payments. 
+ Track reservation status. 
+ Retrieve passenger booking details. 
+ Retrieve train and station information. 
+ Maintain relationships between different entities. 
+ Prevent invalid or inconsistent data. 
+4. Objectives 
+ Maintain passenger records efficiently. 
+ Maintain train and station information. 
+
+=== PAGE 2 ===
+ 
+ Manage railway reservations. 
+ Store payment information. 
+ Establish relationships between related entities. 
+ Retrieve information using SQL queries. 
+ Use joins for combining information from different tables. 
+ Use nested and complex queries for advanced data retrieval. 
+ Use views for simplified access to booking information. 
+ Use triggers for automatic database operations. 
+ Maintain data integrity using constraints. 
+5. Scope 
+Passenger Management 
+ Passenger ID 
+ Name 
+ Age 
+ Gender 
+ Phone number 
+Train Management 
+ Train ID 
+ Train name 
+ Source 
+ Destination 
+ Departure time 
+ Arrival time 
+Station Management 
+ Station ID 
+ Station name 
+ Location 
+Reservation Management 
+ Reservation ID 
+ Passenger ID 
+ Train ID 
+ Payment ID 
+ Seat number 
+ Journey date 
+ Reservation status 
+Payment Management 
+ Payment ID 
+ Amount 
+ Payment mode 
+ Payment status 
+
+=== PAGE 3 ===
+ 
+6. Database Design 
+The Railway Management System contains the following main tables and relationships: 
+Table Primary Key Important Foreign Keys 
+Passenger Passenger_ID — 
+Train Train_ID — 
+Station Station_ID — 
+Payment Payment_ID — 
+Reservation Reservation_ID Passenger_ID, Train_ID, 
+Payment_ID 
+Train_Station Train_ID + Station_ID Train_ID, Station_ID 
+Relationship structure: Passenger → Reservation → Train; Reservation → Payment; Train → 
+Train_Station → Station. 
+7. Real-Life Example in Database 
+Suppose Rahul Sharma books Rajdhani Express. 
+Entity Example Data 
+Passenger Passenger_ID = 101; Name = Rahul Sharma; 
+Age = 21; Gender = Male 
+Train Train_ID = 1001; Train_Name = Rajdhani 
+Express; Source = Delhi; Destination = Mumbai 
+Reservation Reservation_ID = 401; Passenger_ID = 101; 
+Train_ID = 1001; Seat_Number = A1-10; 
+Journey_Date = 15-09-2026; Status = 
+Confirmed 
+Payment Payment_ID = 301; Amount = ₹1500; 
+Payment_Mode = UPI; Payment_Status = Paid 
+8. SQL Operations Implemented 
+DDL and DML: Used to create and populate Passenger, Train, Station, Reservation, Payment and 
+Train_Station tables. 
+Integrity Constraints: PRIMARY KEY, FOREIGN KEY, NOT NULL, UNIQUE, CHECK and DEFAULT 
+constraints maintain data integrity. 
+Simple Query: SELECT * FROM Passenger WHERE Age > 20; 
+Nested Query: SELECT Name FROM Passenger WHERE Passenger_ID IN (SELECT Passenger_ID 
+FROM Reservation); 
+JOIN: SELECT P.Name, R.Reservation_ID, R.Seat_Number FROM Passenger P JOIN Reservation 
+R ON P.Passenger_ID = R.Passenger_ID; 
+View: CREATE VIEW Passenger_Reservation_View AS SELECT P.Name AS Passenger_Name, 
+R.Reservation_ID, R.Seat_Number, R.Journey_Date FROM Passenger P JOIN Reservation R ON 
+P.Passenger_ID = R.Passenger_ID; 
+
+=== PAGE 4 ===
+ 
+Trigger: A trigger can automatically record a new reservation in a Reservation_Audit table after an 
+INSERT operation. 
+9. System Workflow 
+ Passenger 
+ Searches for Train 
+ Selects Train 
+ Makes Reservation 
+ Seat/Date Assigned 
+ Makes Payment 
+ Booking Confirmed 
+10. Advantages 
+ Reduces manual record keeping. 
+ Provides faster data retrieval. 
+ Reduces data duplication. 
+ Maintains relationships between railway records. 
+ Improves data consistency. 
+ Makes reservation information easier to access. 
+ Provides better organization of passenger and train data. 
+ Supports complex queries and reporting. 
+11. Limitations 
+ Real-time seat availability. 
+ Cancellation and refund processing. 
+ Multiple classes and quotas. 
+ Authentication and authorization. 
+ Live train tracking. 
+ Online payment gateway integration. 
+ Large-scale concurrent transactions. 
+12. Future Enhancements 
+ Online ticket cancellation 
+ Waiting-list management 
+ Automatic seat allocation 
+ Train schedule management 
+ User login and authentication 
+ Admin dashboard 
+ PNR generation 
+ SMS/email notifications 
+ Real-time train status 
+ Python GUI/web interface 
+
+=== PAGE 5 ===
+ 
+13. Conclusion 
+The Railway Management System demonstrates how a DBMS can be used to solve a real-world 
+problem involving large amounts of interconnected data. 
+The project combines database design, ER/EER concepts, relational tables, DDL, DML, integrity 
+constraints, simple queries, nested queries, joins, views and triggers into one practical application. 
+The system provides an organized way to manage passengers, trains, stations, reservations and 
+payments while maintaining relationships and consistency among the stored data. 
+Thus, the Railway Management System serves as a practical DBMS capstone based on a real-life 
+railway reservation scenario. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+=== PAGE 6 ===
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+=== PAGE 7 ===
+ 
+ 
+ 
+ 
+ 
+
+
+=== PAGE 8 ===
+ 
+ 
+ 
+ 
+
+

@@ -1,0 +1,73 @@
+erDiagram
+    PASSENGER ||--o{ RESERVATION : "makes (1:M)"
+    TRAIN ||--o{ RESERVATION : "carries (1:M)"
+    PAYMENT ||--|| RESERVATION : "funds (1:1)"
+    TRAIN ||--|{ TRAIN_STATION : "stops_at (1:M)"
+    STATION ||--|{ TRAIN_STATION : "located_on (1:M)"
+    RESERVATION ||--o{ RESERVATION_AUDIT : "tracked_by (1:M via Trigger)"
+
+    PASSENGER {
+        int Passenger_ID PK
+        varchar Name "NOT NULL"
+        int Age "CHECK (Age > 0 AND Age <= 120)"
+        varchar Gender "CHECK (Male, Female, Other)"
+        varchar Phone_Number "UNIQUE, NOT NULL"
+        timestamp Created_At "DEFAULT CURRENT_TIMESTAMP"
+    }
+
+    TRAIN {
+        int Train_ID PK
+        varchar Train_Name "NOT NULL"
+        varchar Source "NOT NULL"
+        varchar Destination "NOT NULL"
+        time Departure_Time "NOT NULL"
+        time Arrival_Time "NOT NULL"
+        int Total_Seats "DEFAULT 60"
+        decimal Base_Fare "DEFAULT 500.00"
+    }
+
+    STATION {
+        int Station_ID PK
+        varchar Station_Name "NOT NULL"
+        varchar Location "NOT NULL"
+        varchar Station_Code "UNIQUE, NOT NULL"
+    }
+
+    PAYMENT {
+        int Payment_ID PK
+        decimal Amount "CHECK (Amount >= 0)"
+        varchar Payment_Mode "CHECK (UPI, Card, Net Banking, Cash)"
+        varchar Payment_Status "CHECK (Paid, Pending, Refunded, Failed)"
+        varchar Transaction_Ref "UNIQUE"
+        timestamp Payment_Date "DEFAULT CURRENT_TIMESTAMP"
+    }
+
+    RESERVATION {
+        int Reservation_ID PK
+        int Passenger_ID FK "REFERENCES Passenger(Passenger_ID)"
+        int Train_ID FK "REFERENCES Train(Train_ID)"
+        int Payment_ID FK "REFERENCES Payment(Payment_ID)"
+        varchar Seat_Number "NOT NULL"
+        date Journey_Date "NOT NULL"
+        varchar Reservation_Status "CHECK (Confirmed, Cancelled, Pending)"
+        varchar PNR "UNIQUE, NOT NULL"
+        timestamp Created_At "DEFAULT CURRENT_TIMESTAMP"
+    }
+
+    TRAIN_STATION {
+        int Train_ID PK_FK "REFERENCES Train(Train_ID)"
+        int Station_ID PK_FK "REFERENCES Station(Station_ID)"
+        int Stop_Sequence "DEFAULT 1"
+        int Halt_Minutes "DEFAULT 5"
+        int Distance_KM "DEFAULT 0"
+    }
+
+    RESERVATION_AUDIT {
+        int Audit_ID PK
+        int Reservation_ID "Logged reservation ID"
+        varchar Action "INSERT, UPDATE, DELETE"
+        timestamp Action_Time "DEFAULT CURRENT_TIMESTAMP"
+        varchar Old_Status
+        varchar New_Status
+        text Details
+    }
