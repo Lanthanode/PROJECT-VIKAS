@@ -1,36 +1,26 @@
 @echo off
-setlocal EnableDelayedExpansion
+setlocal
 title Railway Management System - Production Build and Runner
 color 0B
 
 :: Locate project root & handle nested folders
 cd /d "%~dp0"
-if exist "%CD%\package.json" goto ROOT_VERIFIED
-if exist "%CD%\PROJECT-VIKAS-main\package.json" (
-    cd /d "%CD%\PROJECT-VIKAS-main"
-    goto ROOT_VERIFIED
-)
-if exist "%CD%\niggaVIKAS\package.json" (
-    cd /d "%CD%\niggaVIKAS"
-    goto ROOT_VERIFIED
-)
-for /d %%D in ("%CD%\*") do (
-    if exist "%%D\package.json" (
-        cd /d "%%D"
-        goto ROOT_VERIFIED
-    )
-)
-if exist "%CD%\..\package.json" (
-    cd /d "%CD%\.."
-    goto ROOT_VERIFIED
-)
+if exist "package.json" goto ROOT_FOUND
+if exist "PROJECT-VIKAS-main\package.json" cd /d "PROJECT-VIKAS-main"
+if exist "package.json" goto ROOT_FOUND
+if exist "PROJECT-VIKAS\package.json" cd /d "PROJECT-VIKAS"
+if exist "package.json" goto ROOT_FOUND
+if exist "niggaVIKAS\package.json" cd /d "niggaVIKAS"
+if exist "package.json" goto ROOT_FOUND
+if exist "..\package.json" cd /d ".."
+if exist "package.json" goto ROOT_FOUND
 
 color 0C
 echo [ERROR] package.json not found! Please make sure you have extracted the ZIP file completely.
 pause
 exit /b 1
 
-:ROOT_VERIFIED
+:ROOT_FOUND
 
 echo ===============================================================================
 echo                RAILWAY MANAGEMENT SYSTEM - PRODUCTION LAUNCHER
@@ -41,41 +31,46 @@ echo.
 set "PATH=%ProgramFiles%\nodejs;%ProgramFiles(x86)%\nodejs;%APPDATA%\npm;%LOCALAPPDATA%\Programs\node;%PATH%"
 
 where node >nul 2>nul
-if %errorlevel% neq 0 (
-    color 0E
-    echo [NOTICE] Node.js is not detected on this system.
-    where winget >nul 2>nul
-    if %errorlevel% equ 0 (
-        echo [AUTO-SETUP] Windows Package Manager (winget) detected!
-        echo Downloading and installing Node.js LTS automatically, please wait...
-        winget install OpenJS.NodeJS.LTS --silent --accept-package-agreements --accept-source-agreements
-        echo.
-        echo Node.js installation finished! Please re-run this script to build and start.
-        pause
-        exit /b 0
-    )
-    color 0C
-    echo [ERROR] Node.js is required!
-    echo Please install Node.js from https://nodejs.org/
-    echo.
-    pause
-    exit /b 1
-)
+if %errorlevel% equ 0 goto NODE_OK
 
-if not exist "%CD%\node_modules" (
-    echo [Setup] node_modules not found. Auto-installing dependencies...
-    call npm install
-    if %errorlevel% neq 0 (
-        echo [WARN] Retrying with --legacy-peer-deps...
-        call npm install --legacy-peer-deps
-        if %errorlevel% neq 0 (
-            color 0C
-            echo [ERROR] Dependency installation failed!
-            pause
-            exit /b 1
-        )
-    )
-)
+color 0E
+echo [NOTICE] Node.js is not detected in current PATH.
+where winget >nul 2>nul
+if %errorlevel% neq 0 goto NODE_MISSING
+
+echo [AUTO-SETUP] Installing Node.js LTS via Windows Package Manager, please wait...
+winget install OpenJS.NodeJS.LTS --silent --accept-package-agreements --accept-source-agreements
+set "PATH=%ProgramFiles%\nodejs;%ProgramFiles(x86)%\nodejs;%APPDATA%\npm;%LOCALAPPDATA%\Programs\node;%PATH%"
+
+where node >nul 2>nul
+if %errorlevel% equ 0 goto NODE_OK
+
+:NODE_MISSING
+color 0C
+echo [ERROR] Node.js is required!
+echo Please install Node.js from https://nodejs.org/
+echo.
+pause
+exit /b 1
+
+:NODE_OK
+
+if exist "%CD%\node_modules" goto DEPS_OK
+
+echo [Setup] node_modules not found. Auto-installing dependencies...
+call npm install
+if %errorlevel% equ 0 goto DEPS_OK
+
+echo [WARN] Retrying with --legacy-peer-deps...
+call npm install --legacy-peer-deps
+if %errorlevel% equ 0 goto DEPS_OK
+
+color 0C
+echo [ERROR] Dependency installation failed!
+pause
+exit /b 1
+
+:DEPS_OK
 
 echo [1/3] Building production bundle...
 call npm run build
@@ -93,7 +88,7 @@ for /f "tokens=5" %%a in ('netstat -aon ^| findstr :3000 ^| findstr /i LISTENING
 )
 
 echo [3/3] Starting production server on http://localhost:3000 ...
-start "" cmd /c "timeout /t 2 /nobreak >nul && start http://localhost:3000"
+start "" cmd /c "ping -n 3 127.0.0.1 >nul && start http://localhost:3000"
 
 echo ===============================================================================
 echo  Application is running in production mode at http://localhost:3000
@@ -108,4 +103,4 @@ if %errorlevel% neq 0 (
 )
 echo.
 echo Press any key to close this window...
-pause >nul
+pause
