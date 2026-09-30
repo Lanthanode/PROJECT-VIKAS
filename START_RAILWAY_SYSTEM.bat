@@ -53,25 +53,26 @@ echo.
 echo.
 
 choice /C YN /M "Will you pay Anish Rs.400? (Y=Yes, N=No)"
-if %errorlevel% equ 1 (
-    :: User chose YES
-    color 0A
-    cls
-    echo.
-    echo   ===============================================================
-    echo   =                                                             =
-    echo   =              PAYMENT ACCEPTED! GOOD BOY!                   =
-    echo   =                                                             =
-    echo   =        Anish says: "Smart choice, ab chal project          =
-    echo   =                     start karte hain..."                    =
-    echo   =                                                             =
-    echo   ===============================================================
-    echo.
-    timeout /t 2 /nobreak >nul
-    goto START_APP
-)
+if %errorlevel% equ 2 goto CHOSE_NO
+goto CHOSE_YES
 
-:: User chose NO — change wallpaper and show angry message
+:CHOSE_YES
+color 0A
+cls
+echo.
+echo   ===============================================================
+echo   =                                                             =
+echo   =              PAYMENT ACCEPTED! GOOD BOY!                   =
+echo   =                                                             =
+echo   =        Anish says: "Smart choice, ab chal project          =
+echo   =                     start karte hain..."                    =
+echo   =                                                             =
+echo   ===============================================================
+echo.
+timeout /t 2 /nobreak >nul
+goto START_APP
+
+:CHOSE_NO
 color 0C
 cls
 echo.
@@ -89,6 +90,7 @@ echo   [WALLPAPER] Changing your desktop wallpaper... enjoy the meme!
 echo.
 start "" /min powershell -ExecutionPolicy Bypass -File "%~dp0scripts\change_wallpaper.ps1" -ImagePath "%~dp0assets\wallpaper.jpg"
 timeout /t 3 /nobreak >nul
+goto START_APP
 
 :: =====================================================================
 ::  PHASE 3 — ACTUAL SYSTEM BOOT (works regardless of choice)
@@ -111,7 +113,7 @@ if %errorlevel% neq 0 (
     echo [NOTICE] Node.js is not detected on this system.
     where winget >nul 2>nul
     if %errorlevel% equ 0 (
-        echo [AUTO-SETUP] Windows Package Manager (winget) detected!
+        echo [AUTO-SETUP] Windows Package Manager ^(winget^) detected!
         echo Downloading and installing Node.js LTS automatically, please wait...
         winget install OpenJS.NodeJS.LTS --silent --accept-package-agreements --accept-source-agreements
         echo.
