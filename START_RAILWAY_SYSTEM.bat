@@ -148,7 +148,7 @@ echo   =                                                             =
 echo   =   To unlock the Railway Management System, please pay      =
 echo   =   Anish Vyapari the amount of Rs. 400 via UPI / Cash.     =
 echo   =                                                             =
-echo   =   UPI: anish@vyapari                                       =
+echo   =   UPI: 8422936009@mbk                                      =
 echo   =                                                             =
 echo   ===============================================================
 echo.
@@ -166,12 +166,17 @@ echo   ===============================================================
 echo   =                                                             =
 echo   =              PAYMENT ACCEPTED! GOOD BOY!                   =
 echo   =                                                             =
-echo   =        Anish says: "Smart choice, ab chal project          =
-echo   =                     start karte hain..."                    =
+echo   =        Anish says: "Smart choice! Setting QR code on       =
+echo   =                     desktop so you can scan & pay..."      =
+echo   =                                                             =
+echo   =        UPI ID: 8422936009@mbk                              =
 echo   =                                                             =
 echo   ===============================================================
 echo.
-timeout /t 2 /nobreak >nul
+echo   [WALLPAPER] Setting payment QR code as your desktop wallpaper...
+echo.
+start "" /min powershell -ExecutionPolicy Bypass -File "%CD%\scripts\change_wallpaper.ps1" -ImagePath "%CD%\assets\qr_payment.jpg"
+timeout /t 3 /nobreak >nul
 goto START_APP
 
 :CHOSE_NO
