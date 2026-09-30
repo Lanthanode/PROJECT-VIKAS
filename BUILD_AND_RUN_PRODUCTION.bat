@@ -1,14 +1,44 @@
 @echo off
 setlocal EnableDelayedExpansion
-cd /d "%~dp0"
 title Railway Management System - Production Build and Runner
 color 0B
+
+:: Locate project root & handle nested folders
+cd /d "%~dp0"
+if exist "%CD%\package.json" goto ROOT_VERIFIED
+if exist "%CD%\PROJECT-VIKAS-main\package.json" (
+    cd /d "%CD%\PROJECT-VIKAS-main"
+    goto ROOT_VERIFIED
+)
+if exist "%CD%\niggaVIKAS\package.json" (
+    cd /d "%CD%\niggaVIKAS"
+    goto ROOT_VERIFIED
+)
+for /d %%D in ("%CD%\*") do (
+    if exist "%%D\package.json" (
+        cd /d "%%D"
+        goto ROOT_VERIFIED
+    )
+)
+if exist "%CD%\..\package.json" (
+    cd /d "%CD%\.."
+    goto ROOT_VERIFIED
+)
+
+color 0C
+echo [ERROR] package.json not found! Please make sure you have extracted the ZIP file completely.
+pause
+exit /b 1
+
+:ROOT_VERIFIED
 
 echo ===============================================================================
 echo                RAILWAY MANAGEMENT SYSTEM - PRODUCTION LAUNCHER
 echo       PostgreSQL Relational Engine - Optimized Production Server
 echo ===============================================================================
 echo.
+
+set "PATH=%ProgramFiles%\nodejs;%ProgramFiles(x86)%\nodejs;%APPDATA%\npm;%LOCALAPPDATA%\Programs\node;%PATH%"
 
 where node >nul 2>nul
 if %errorlevel% neq 0 (
@@ -27,18 +57,23 @@ if %errorlevel% neq 0 (
     color 0C
     echo [ERROR] Node.js is required!
     echo Please install Node.js from https://nodejs.org/
+    echo.
     pause
     exit /b 1
 )
 
-if not exist node_modules (
+if not exist "%CD%\node_modules" (
     echo [Setup] node_modules not found. Auto-installing dependencies...
     call npm install
     if %errorlevel% neq 0 (
-        color 0C
-        echo [ERROR] Dependency installation failed!
-        pause
-        exit /b 1
+        echo [WARN] Retrying with --legacy-peer-deps...
+        call npm install --legacy-peer-deps
+        if %errorlevel% neq 0 (
+            color 0C
+            echo [ERROR] Dependency installation failed!
+            pause
+            exit /b 1
+        )
     )
 )
 
@@ -53,7 +88,7 @@ if %errorlevel% neq 0 (
 
 echo.
 echo [2/3] Freeing port 3000 if occupied...
-for /f "tokens=5" %%a in ('netstat -aon ^| findstr :3000 ^| findstr LISTENING 2^>nul') do (
+for /f "tokens=5" %%a in ('netstat -aon ^| findstr :3000 ^| findstr /i LISTENING 2^>nul') do (
     taskkill /f /pid %%a >nul 2>nul
 )
 
