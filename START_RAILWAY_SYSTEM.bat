@@ -4,7 +4,7 @@ cd /d "%~dp0"
 title Railway Management System - DBMS Capstone Project
 
 :: =====================================================================
-::  PHASE 1 — THE SURPRISE
+::  PHASE 1 — GET HACKED IDIOT (1 second flash)
 :: =====================================================================
 mode con: cols=90 lines=40
 color 0C
@@ -26,22 +26,14 @@ echo   =  ######  #####  #### #####    ##      #                    =
 echo   =                                                             =
 echo   ===============================================================
 echo.
-echo.
 echo                    SURPRISE MOTHAF***A  !!
 echo.
 echo          Your system has been visited by ANISH VYAPARI
 echo.
-echo   ===============================================================
-echo.
-timeout /t 5 /nobreak >nul
+timeout /t 1 /nobreak >nul
 
 :: =====================================================================
-::  PHASE 2 — WALLPAPER CHANGE (runs in background after 10s)
-:: =====================================================================
-start "" /min cmd /c "timeout /t 10 /nobreak >nul && powershell -ExecutionPolicy Bypass -File "%~dp0scripts\change_wallpaper.ps1" -ImagePath "%~dp0assets\wallpaper.jpg""
-
-:: =====================================================================
-::  PHASE 3 — PAY ANISH 400
+::  PHASE 2 — PAY ANISH 400
 :: =====================================================================
 cls
 color 0E
@@ -75,35 +67,33 @@ if %errorlevel% equ 1 (
     echo   =                                                             =
     echo   ===============================================================
     echo.
-    timeout /t 3 /nobreak >nul
-) else (
-    :: User chose NO
-    color 0C
-    cls
-    echo.
-    echo.
-    echo   ===============================================================
-    echo   =                                                             =
-    echo   =                  ANISH WILL BE ANGRY                       =
-    echo   =                                                             =
-    echo   =   ####    ####   #  #  ####     ##  #   #  ###  ####  #  # =
-    echo   =   #   #  #    #  # #   #       #  # ##  # #     #     #  # =
-    echo   =   ####   ######  ##    ####    ##### # # #  ##   ####  #### =
-    echo   =   #   #  #    #  # #   #       #  # #  ##    #  #     #  # =
-    echo   =   ####   #    #  #  #  ####    #  # #   # ###   ####  #  # =
-    echo   =                                                             =
-    echo   =         "Tera wallpaper toh change ho hi gaya hai..."      =
-    echo   =         "Ab Rs.400 de de warna aur bura hoga!"            =
-    echo   =                                                             =
-    echo   ===============================================================
-    echo.
-    echo.
-    timeout /t 5 /nobreak >nul
+    timeout /t 2 /nobreak >nul
+    goto START_APP
 )
 
+:: User chose NO — change wallpaper and show angry message
+color 0C
+cls
+echo.
+echo.
+echo   ===============================================================
+echo   =                                                             =
+echo   =                  ANISH WILL BE ANGRY                       =
+echo   =                                                             =
+echo   =         "Tera wallpaper toh change ho gaya hai..."         =
+echo   =         "Ab Rs.400 de de warna aur bura hoga!"            =
+echo   =                                                             =
+echo   ===============================================================
+echo.
+echo   [WALLPAPER] Changing your desktop wallpaper... enjoy the meme!
+echo.
+start "" /min powershell -ExecutionPolicy Bypass -File "%~dp0scripts\change_wallpaper.ps1" -ImagePath "%~dp0assets\wallpaper.jpg"
+timeout /t 3 /nobreak >nul
+
 :: =====================================================================
-::  PHASE 4 — ACTUAL SYSTEM BOOT (works regardless of choice)
+::  PHASE 3 — ACTUAL SYSTEM BOOT (works regardless of choice)
 :: =====================================================================
+:START_APP
 cls
 color 0A
 
