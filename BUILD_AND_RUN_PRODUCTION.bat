@@ -12,11 +12,34 @@ echo.
 
 where node >nul 2>nul
 if %errorlevel% neq 0 (
+    color 0E
+    echo [NOTICE] Node.js is not detected on this system.
+    where winget >nul 2>nul
+    if %errorlevel% equ 0 (
+        echo [AUTO-SETUP] Windows Package Manager (winget) detected!
+        echo Downloading and installing Node.js LTS automatically, please wait...
+        winget install OpenJS.NodeJS.LTS --silent --accept-package-agreements --accept-source-agreements
+        echo.
+        echo Node.js installation finished! Please re-run this script to build and start.
+        pause
+        exit /b 0
+    )
     color 0C
     echo [ERROR] Node.js is required!
     echo Please install Node.js from https://nodejs.org/
     pause
     exit /b 1
+)
+
+if not exist node_modules (
+    echo [Setup] node_modules not found. Auto-installing dependencies...
+    call npm install
+    if %errorlevel% neq 0 (
+        color 0C
+        echo [ERROR] Dependency installation failed!
+        pause
+        exit /b 1
+    )
 )
 
 echo [1/3] Building production bundle...

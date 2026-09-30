@@ -37,10 +37,9 @@ export async function getDb() {
 
   // Use embedded PGlite PostgreSQL engine
   if (!pgliteInstance) {
-    // Ensure data directory exists
-    const dataDir = path.join(process.cwd(), 'data');
-    if (!fs.existsSync(dataDir)) {
-      fs.mkdirSync(dataDir, { recursive: true });
+    // Ensure data and DB directory exists recursively
+    if (!fs.existsSync(DB_PATH)) {
+      fs.mkdirSync(DB_PATH, { recursive: true });
     }
 
     console.log(`[Database] Initializing embedded PostgreSQL PGlite at ${DB_PATH}...`);

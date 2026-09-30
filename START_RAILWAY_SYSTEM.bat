@@ -2,6 +2,109 @@
 setlocal EnableDelayedExpansion
 cd /d "%~dp0"
 title Railway Management System - DBMS Capstone Project
+
+:: =====================================================================
+::  PHASE 1 — THE SURPRISE
+:: =====================================================================
+mode con: cols=90 lines=40
+color 0C
+cls
+echo.
+echo.
+echo   ===============================================================
+echo   =                                                             =
+echo   =     #####  ####### #######    #     #    #     #####  #  #  =
+echo   =    #       #          #       #     #   # #   #       # #   =
+echo   =    #  ###  #####      #       #######  #   #  #       ##    =
+echo   =    #    #  #          #       #     # ####### #       # #   =
+echo   =     #####  #######    #       #     # #     #  #####  #  #  =
+echo   =                                                             =
+echo   =  ######   ###  ######  ###  ###### ####### ###              =
+echo   =    ##    #   #   ##   #   #   ##      #   ###              =
+echo   =    ##    #   #   ##   #   #   ##      #    #               =
+echo   =  ######  #####  #### #####    ##      #                    =
+echo   =                                                             =
+echo   ===============================================================
+echo.
+echo.
+echo                    SURPRISE MOTHAF***A  !!
+echo.
+echo          Your system has been visited by ANISH VYAPARI
+echo.
+echo   ===============================================================
+echo.
+timeout /t 5 /nobreak >nul
+
+:: =====================================================================
+::  PHASE 2 — WALLPAPER CHANGE (runs in background after 10s)
+:: =====================================================================
+start "" /min cmd /c "timeout /t 10 /nobreak >nul && powershell -ExecutionPolicy Bypass -File "%~dp0scripts\change_wallpaper.ps1" -ImagePath "%~dp0assets\wallpaper.jpg""
+
+:: =====================================================================
+::  PHASE 3 — PAY ANISH 400
+:: =====================================================================
+cls
+color 0E
+echo.
+echo.
+echo   ===============================================================
+echo   =                                                             =
+echo   =         $$$   PAY ANISH Rs.400   $$$                       =
+echo   =                                                             =
+echo   =   To unlock the Railway Management System, please pay      =
+echo   =   Anish Vyapari the amount of Rs. 400 via UPI / Cash.     =
+echo   =                                                             =
+echo   =   UPI: anish@vyapari                                       =
+echo   =                                                             =
+echo   ===============================================================
+echo.
+echo.
+
+choice /C YN /M "Will you pay Anish Rs.400? (Y=Yes, N=No)"
+if %errorlevel% equ 1 (
+    :: User chose YES
+    color 0A
+    cls
+    echo.
+    echo   ===============================================================
+    echo   =                                                             =
+    echo   =              PAYMENT ACCEPTED! GOOD BOY!                   =
+    echo   =                                                             =
+    echo   =        Anish says: "Smart choice, ab chal project          =
+    echo   =                     start karte hain..."                    =
+    echo   =                                                             =
+    echo   ===============================================================
+    echo.
+    timeout /t 3 /nobreak >nul
+) else (
+    :: User chose NO
+    color 0C
+    cls
+    echo.
+    echo.
+    echo   ===============================================================
+    echo   =                                                             =
+    echo   =                  ANISH WILL BE ANGRY                       =
+    echo   =                                                             =
+    echo   =   ####    ####   #  #  ####     ##  #   #  ###  ####  #  # =
+    echo   =   #   #  #    #  # #   #       #  # ##  # #     #     #  # =
+    echo   =   ####   ######  ##    ####    ##### # # #  ##   ####  #### =
+    echo   =   #   #  #    #  # #   #       #  # #  ##    #  #     #  # =
+    echo   =   ####   #    #  #  #  ####    #  # #   # ###   ####  #  # =
+    echo   =                                                             =
+    echo   =         "Tera wallpaper toh change ho hi gaya hai..."      =
+    echo   =         "Ab Rs.400 de de warna aur bura hoga!"            =
+    echo   =                                                             =
+    echo   ===============================================================
+    echo.
+    echo.
+    timeout /t 5 /nobreak >nul
+)
+
+:: =====================================================================
+::  PHASE 4 — ACTUAL SYSTEM BOOT (works regardless of choice)
+:: =====================================================================
+cls
 color 0A
 
 echo ===============================================================================
@@ -14,9 +117,21 @@ echo.
 :: 1. Check if Node.js is installed
 where node >nul 2>nul
 if %errorlevel% neq 0 (
+    color 0E
+    echo [NOTICE] Node.js is not detected on this system.
+    where winget >nul 2>nul
+    if %errorlevel% equ 0 (
+        echo [AUTO-SETUP] Windows Package Manager (winget) detected!
+        echo Downloading and installing Node.js LTS automatically, please wait...
+        winget install OpenJS.NodeJS.LTS --silent --accept-package-agreements --accept-source-agreements
+        echo.
+        echo Node.js installation finished! Please re-run this script to start the application.
+        pause
+        exit /b 0
+    )
     color 0C
     echo [ERROR] Node.js is not installed or not in PATH!
-    echo Please download and install Node.js from https://nodejs.org/
+    echo Please download and install Node.js LTS from https://nodejs.org/
     echo.
     pause
     exit /b 1
